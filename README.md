@@ -3,8 +3,11 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.52+-red.svg)](https://streamlit.io)
 [![OpenRouter](https://img.shields.io/badge/OpenRouter-API-green.svg)](https://openrouter.ai)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-FF4B4B?logo=streamlit)](https://nl2sqlagent.streamlit.app/)
 
 A sophisticated multi-agent AI system that converts natural language queries into SQL, executes them, and provides intelligent insights. Built with three specialized AI agents working collaboratively.
+
+🔗 **[Try the Live Demo →](https://nl2sqlagent.streamlit.app/)**
 
 ---
 
