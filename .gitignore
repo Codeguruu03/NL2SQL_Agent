@@ -1,0 +1,7 @@
+deepsevenv/
+__pycache__/
+*.pyc
+.env
+*.sqlite
+Deepseekapi.txt
+venv/
