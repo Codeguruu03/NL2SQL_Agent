@@ -35,8 +35,9 @@ jobs:
     - name: Run tests with coverage
       env:
         OPENROUTER_API_KEY: "test-key-for-ci"
+        PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
       run: |
-        pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+        pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
@@ -65,9 +66,9 @@ jobs:
     - name: Run linting
       run: |
         # Stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv,__pycache__,.git
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv,__pycache__,.git,src
         # Exit-zero treats all errors as warnings
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=venv,__pycache__,.git
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=venv,__pycache__,.git,src
 
   build:
     runs-on: ubuntu-latest
@@ -88,8 +89,11 @@ jobs:
         pip install -r requirements.txt
     
     - name: Verify imports
+      env:
+        PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
       run: |
-        python -c "from db import init_db; print('Database module OK')"
+        python -c "from src.core.db import init_db; print('Database module OK')"
+        python -c "from src.agents.chat_agent import ChatAgent; print('Agents module OK')"
         python -c "print('All imports successful')"
     
     - name: Build success
