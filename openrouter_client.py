@@ -38,10 +38,10 @@ class OpenRouterClient:
                 "Set OPENROUTER_API_KEY in .env file or pass api_key parameter."
             )
         
-        # Use free Llama model as default (best free option on OpenRouter)
+        # Use free Google Gemma model as default (reliable free option on OpenRouter)
         self.model = model or os.getenv(
             "OPENROUTER_MODEL", 
-            "meta-llama/llama-3.1-8b-instruct:free"
+            "google/gemma-2-9b-it:free"
         )
         self.base_url = base_url
         self.chat_endpoint = f"{base_url}/chat/completions"
