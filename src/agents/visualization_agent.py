@@ -7,7 +7,7 @@ Automatically detects appropriate chart types based on data patterns.
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import List, Tuple, Any, Optional, Dict
-from agent_base import Agent
+from .agent_base import Agent
 import pandas as pd
 
 

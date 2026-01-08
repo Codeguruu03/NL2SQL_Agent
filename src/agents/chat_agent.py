@@ -5,10 +5,10 @@ Routes user requests to appropriate agents and coordinates responses.
 """
 
 from typing import Optional, Dict, Any
-from agent_base import Agent
-from sql_agent import get_sql_agent
-from summary_agent import get_summary_agent
-from visualization_agent import get_visualization_agent
+from .agent_base import Agent
+from .sql_agent import get_sql_agent
+from .summary_agent import get_summary_agent
+from .visualization_agent import get_visualization_agent
 
 
 class ChatAgent(Agent):

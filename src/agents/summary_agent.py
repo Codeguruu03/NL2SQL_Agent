@@ -5,7 +5,7 @@ Takes raw data and provides insights in natural language.
 """
 
 from typing import List, Tuple, Any, Optional
-from agent_base import Agent
+from .agent_base import Agent
 
 
 class SummaryAgent(Agent):

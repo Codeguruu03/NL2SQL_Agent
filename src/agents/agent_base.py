@@ -6,7 +6,7 @@ Provides common functionality for LLM interaction.
 
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict, Any
-from openrouter_client import get_openrouter_client, OpenRouterClient
+from ..core.openrouter_client import get_openrouter_client, OpenRouterClient
 
 
 class Agent(ABC):

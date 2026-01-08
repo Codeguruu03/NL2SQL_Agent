@@ -2,9 +2,13 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
-
+import sys
 import os
-from db import (
+
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from src.core.db import (
     init_db, 
     auto_detect_schema, 
     set_database_path, 
@@ -164,7 +168,7 @@ def main():
         with st.spinner("🤖 Agents are working on your request..."):
             try:
                 # Lazy import to avoid initialization errors
-                from chat_agent import get_chat_agent
+                from src.agents.chat_agent import get_chat_agent
                 
                 # Get chat agent and process
                 chat_agent = get_chat_agent()

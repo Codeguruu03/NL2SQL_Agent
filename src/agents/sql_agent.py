@@ -6,8 +6,8 @@ Uses LLM to convert user requests into SQL queries based on database schema.
 
 import re
 from typing import Optional, Tuple, List, Any
-from agent_base import Agent
-from db import get_connection, run_query
+from .agent_base import Agent
+from ..core.db import get_connection, run_query
 
 
 class SQLAgent(Agent):
