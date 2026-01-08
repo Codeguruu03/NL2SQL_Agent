@@ -7,23 +7,6 @@ import sqlite3
 from pathlib import Path
 import tempfile
 import os
-import sys
-
-# Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
-sys.path.insert(0, os.path.join(project_root, 'src'))
-
-from src.core.db import (
-    init_db,
-    get_connection,
-    run_query,
-    get_schema_text,
-    auto_detect_schema,
-    set_database_path,
-    reset_to_default_database,
-    DB_PATH
-)
 
 
 class TestDatabaseConnection:
@@ -31,6 +14,8 @@ class TestDatabaseConnection:
     
     def test_init_db_creates_tables(self):
         """Test that init_db creates all required tables."""
+        from src.core.db import init_db, get_connection
+        
         # Initialize the database
         init_db()
         
@@ -49,6 +34,8 @@ class TestDatabaseConnection:
     
     def test_run_query_select(self):
         """Test running a SELECT query."""
+        from src.core.db import init_db, run_query
+        
         init_db()
         
         columns, rows = run_query("SELECT * FROM department;")
@@ -60,6 +47,8 @@ class TestDatabaseConnection:
     
     def test_run_query_with_join(self):
         """Test running a JOIN query."""
+        from src.core.db import init_db, run_query
+        
         init_db()
         
         sql = """
@@ -76,6 +65,8 @@ class TestDatabaseConnection:
     
     def test_run_query_invalid_sql(self):
         """Test that invalid SQL raises an exception."""
+        from src.core.db import init_db, run_query
+        
         init_db()
         
         with pytest.raises(Exception):
@@ -87,6 +78,8 @@ class TestSchemaDetection:
     
     def test_get_schema_text(self):
         """Test getting schema text."""
+        from src.core.db import get_schema_text
+        
         schema = get_schema_text()
         
         assert schema is not None
@@ -96,6 +89,8 @@ class TestSchemaDetection:
     
     def test_auto_detect_schema(self):
         """Test auto schema detection."""
+        from src.core.db import init_db, auto_detect_schema
+        
         init_db()
         
         schema = auto_detect_schema()
@@ -107,6 +102,8 @@ class TestSchemaDetection:
     
     def test_auto_detect_schema_custom_db(self):
         """Test auto schema detection with custom database."""
+        from src.core.db import auto_detect_schema
+        
         # Create a temporary database
         with tempfile.NamedTemporaryFile(suffix='.sqlite', delete=False) as f:
             temp_path = f.name
@@ -138,6 +135,8 @@ class TestDatabasePath:
     
     def test_set_database_path_valid(self):
         """Test setting a valid database path."""
+        from src.core.db import init_db, set_database_path, DB_PATH
+        
         init_db()  # Ensure default DB exists
         
         result = set_database_path(str(DB_PATH))
@@ -146,12 +145,16 @@ class TestDatabasePath:
     
     def test_set_database_path_invalid(self):
         """Test setting an invalid database path."""
+        from src.core.db import set_database_path
+        
         result = set_database_path("/nonexistent/path/database.sqlite")
         
         assert result == False
     
     def test_reset_to_default(self):
         """Test resetting to default database."""
+        from src.core.db import reset_to_default_database
+        
         reset_to_default_database()
         # Should not raise any exceptions
 

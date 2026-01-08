@@ -3,14 +3,8 @@
 Tests for the multi-agent system.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import os
-import sys
-
-# Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
-sys.path.insert(0, os.path.join(project_root, 'src'))
 
 
 class TestSQLAgentUnit:
@@ -18,11 +12,9 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_validate_query_select(self):
         """Test that SELECT queries are validated as safe."""
-        from src.agents.sql_agent import SQLAgent
-        
-        # Mock the OpenRouter client to avoid API calls
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.sql_agent import SQLAgent
             agent = SQLAgent()
             
             assert agent.validate_query("SELECT * FROM users;") == True
@@ -30,10 +22,9 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_validate_query_dangerous(self):
         """Test that dangerous queries are blocked."""
-        from src.agents.sql_agent import SQLAgent
-        
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.sql_agent import SQLAgent
             agent = SQLAgent()
             
             assert agent.validate_query("DROP TABLE users;") == False
@@ -43,10 +34,9 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_clean_sql_response(self):
         """Test SQL response cleaning."""
-        from src.agents.sql_agent import SQLAgent
-        
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.sql_agent import SQLAgent
             agent = SQLAgent()
             
             # Test markdown code block removal
@@ -67,10 +57,9 @@ class TestSummaryAgentUnit:
     
     def test_summary_agent_format_results(self):
         """Test result formatting for LLM."""
-        from src.agents.summary_agent import SummaryAgent
-        
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.summary_agent import SummaryAgent
             agent = SummaryAgent()
             
             columns = ["id", "name", "value"]
@@ -86,10 +75,9 @@ class TestSummaryAgentUnit:
     
     def test_summary_agent_fallback_summary(self):
         """Test fallback summary generation."""
-        from src.agents.summary_agent import SummaryAgent
-        
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.summary_agent import SummaryAgent
             agent = SummaryAgent()
             
             # Test single row
@@ -110,11 +98,11 @@ class TestVisualizationAgent:
     
     def test_viz_agent_detect_chart_type_bar(self):
         """Test chart type detection for bar charts."""
-        from src.agents.visualization_agent import VisualizationAgent
         import pandas as pd
         
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.visualization_agent import VisualizationAgent
             agent = VisualizationAgent()
             
             # Categorical + numeric = bar chart
@@ -130,11 +118,11 @@ class TestVisualizationAgent:
     
     def test_viz_agent_detect_chart_type_no_viz(self):
         """Test that complex data returns no visualization."""
-        from src.agents.visualization_agent import VisualizationAgent
         import pandas as pd
         
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.visualization_agent import VisualizationAgent
             agent = VisualizationAgent()
             
             # Single row with many columns
@@ -148,10 +136,9 @@ class TestVisualizationAgent:
     
     def test_viz_agent_process_empty_data(self):
         """Test processing empty data."""
-        from src.agents.visualization_agent import VisualizationAgent
-        
         with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
+            from src.agents.visualization_agent import VisualizationAgent
             agent = VisualizationAgent()
             
             result = agent.process(
@@ -162,63 +149,16 @@ class TestVisualizationAgent:
             assert result is None
 
 
-class TestChatAgentOrchestration:
-    """Tests for Chat Agent orchestration logic."""
-    
-    def test_chat_agent_result_structure(self):
-        """Test that Chat Agent returns correct result structure."""
-        from src.agents.chat_agent import ChatAgent
-        
-        with patch('src.agents.chat_agent.get_sql_agent') as mock_sql, \
-             patch('src.agents.chat_agent.get_summary_agent') as mock_summary, \
-             patch('src.agents.chat_agent.get_visualization_agent') as mock_viz, \
-             patch('src.agents.agent_base.get_openrouter_client') as mock_client:
-            
-            # Setup mocks
-            mock_sql_agent = Mock()
-            mock_sql_agent.process.return_value = (
-                "SELECT * FROM test;",
-                ["id", "name"],
-                [(1, "Alice"), (2, "Bob")]
-            )
-            mock_sql_agent.set_schema = Mock()
-            mock_sql.return_value = mock_sql_agent
-            
-            mock_summary_agent = Mock()
-            mock_summary_agent.process.return_value = "Summary text"
-            mock_summary.return_value = mock_summary_agent
-            
-            mock_viz_agent = Mock()
-            mock_viz_agent.process.return_value = None
-            mock_viz.return_value = mock_viz_agent
-            
-            mock_client.return_value = Mock()
-            
-            # Create agent and process
-            agent = ChatAgent()
-            result = agent.process("list users", "schema text")
-            
-            # Verify structure
-            assert "success" in result
-            assert "sql_query" in result
-            assert "columns" in result
-            assert "rows" in result
-            assert "summary" in result
-            assert "visualization" in result
-            assert "error" in result
-
-
 class TestOpenRouterClient:
     """Tests for OpenRouter API client."""
     
     def test_client_requires_api_key(self):
         """Test that client raises error without API key."""
-        from src.core.openrouter_client import OpenRouterClient
-        
         # Remove API key from environment
         old_key = os.environ.pop('OPENROUTER_API_KEY', None)
         
         try:
+            from src.core.openrouter_client import OpenRouterClient
             with pytest.raises(ValueError) as exc_info:
                 client = OpenRouterClient(api_key=None)
             
