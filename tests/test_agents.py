@@ -7,8 +7,10 @@ from unittest.mock import Mock, patch, MagicMock
 import os
 import sys
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.join(project_root, 'src'))
 
 
 class TestSQLAgentUnit:
@@ -16,10 +18,10 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_validate_query_select(self):
         """Test that SELECT queries are validated as safe."""
-        from sql_agent import SQLAgent
+        from src.agents.sql_agent import SQLAgent
         
         # Mock the OpenRouter client to avoid API calls
-        with patch('sql_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = SQLAgent()
             
@@ -28,9 +30,9 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_validate_query_dangerous(self):
         """Test that dangerous queries are blocked."""
-        from sql_agent import SQLAgent
+        from src.agents.sql_agent import SQLAgent
         
-        with patch('sql_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = SQLAgent()
             
@@ -41,9 +43,9 @@ class TestSQLAgentUnit:
     
     def test_sql_agent_clean_sql_response(self):
         """Test SQL response cleaning."""
-        from sql_agent import SQLAgent
+        from src.agents.sql_agent import SQLAgent
         
-        with patch('sql_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = SQLAgent()
             
@@ -65,9 +67,9 @@ class TestSummaryAgentUnit:
     
     def test_summary_agent_format_results(self):
         """Test result formatting for LLM."""
-        from summary_agent import SummaryAgent
+        from src.agents.summary_agent import SummaryAgent
         
-        with patch('summary_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = SummaryAgent()
             
@@ -84,9 +86,9 @@ class TestSummaryAgentUnit:
     
     def test_summary_agent_fallback_summary(self):
         """Test fallback summary generation."""
-        from summary_agent import SummaryAgent
+        from src.agents.summary_agent import SummaryAgent
         
-        with patch('summary_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = SummaryAgent()
             
@@ -108,10 +110,10 @@ class TestVisualizationAgent:
     
     def test_viz_agent_detect_chart_type_bar(self):
         """Test chart type detection for bar charts."""
-        from visualization_agent import VisualizationAgent
+        from src.agents.visualization_agent import VisualizationAgent
         import pandas as pd
         
-        with patch('visualization_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = VisualizationAgent()
             
@@ -128,10 +130,10 @@ class TestVisualizationAgent:
     
     def test_viz_agent_detect_chart_type_no_viz(self):
         """Test that complex data returns no visualization."""
-        from visualization_agent import VisualizationAgent
+        from src.agents.visualization_agent import VisualizationAgent
         import pandas as pd
         
-        with patch('visualization_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = VisualizationAgent()
             
@@ -146,9 +148,9 @@ class TestVisualizationAgent:
     
     def test_viz_agent_process_empty_data(self):
         """Test processing empty data."""
-        from visualization_agent import VisualizationAgent
+        from src.agents.visualization_agent import VisualizationAgent
         
-        with patch('visualization_agent.get_openrouter_client') as mock:
+        with patch('src.agents.agent_base.get_openrouter_client') as mock:
             mock.return_value = Mock()
             agent = VisualizationAgent()
             
@@ -165,12 +167,12 @@ class TestChatAgentOrchestration:
     
     def test_chat_agent_result_structure(self):
         """Test that Chat Agent returns correct result structure."""
-        from chat_agent import ChatAgent
+        from src.agents.chat_agent import ChatAgent
         
-        with patch('chat_agent.get_sql_agent') as mock_sql, \
-             patch('chat_agent.get_summary_agent') as mock_summary, \
-             patch('chat_agent.get_visualization_agent') as mock_viz, \
-             patch('chat_agent.get_openrouter_client') as mock_client:
+        with patch('src.agents.chat_agent.get_sql_agent') as mock_sql, \
+             patch('src.agents.chat_agent.get_summary_agent') as mock_summary, \
+             patch('src.agents.chat_agent.get_visualization_agent') as mock_viz, \
+             patch('src.agents.agent_base.get_openrouter_client') as mock_client:
             
             # Setup mocks
             mock_sql_agent = Mock()
@@ -211,7 +213,7 @@ class TestOpenRouterClient:
     
     def test_client_requires_api_key(self):
         """Test that client raises error without API key."""
-        from openrouter_client import OpenRouterClient
+        from src.core.openrouter_client import OpenRouterClient
         
         # Remove API key from environment
         old_key = os.environ.pop('OPENROUTER_API_KEY', None)
@@ -228,7 +230,7 @@ class TestOpenRouterClient:
     
     def test_client_with_api_key(self):
         """Test that client initializes with API key."""
-        from openrouter_client import OpenRouterClient
+        from src.core.openrouter_client import OpenRouterClient
         
         client = OpenRouterClient(api_key="test-key-12345")
         
