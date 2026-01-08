@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any
 from agent_base import Agent
 from sql_agent import get_sql_agent
 from summary_agent import get_summary_agent
+from visualization_agent import get_visualization_agent
 
 
 class ChatAgent(Agent):
@@ -16,10 +17,11 @@ class ChatAgent(Agent):
     def __init__(self):
         super().__init__(
             name="Chat Agent",
-            role="Orchestrates SQL and Summary agents to answer user queries"
+            role="Orchestrates SQL, Summary, and Visualization agents to answer user queries"
         )
         self.sql_agent = get_sql_agent()
         self.summary_agent = get_summary_agent()
+        self.visualization_agent = get_visualization_agent()
     
     def get_system_prompt(self) -> str:
         """System prompt for chat orchestration."""
@@ -28,12 +30,14 @@ class ChatAgent(Agent):
 You coordinate with specialized agents:
 - SQL Agent: Converts natural language to SQL queries
 - Summary Agent: Interprets query results
+- Visualization Agent: Creates charts and graphs
 
 Your job is to:
 1. Understand user intent
 2. Route requests to the SQL Agent
 3. Get results summarized by the Summary Agent
-4. Provide helpful, conversational responses
+4. Generate visualizations when appropriate
+5. Provide helpful, conversational responses
 
 Be friendly, concise, and helpful."""
     
@@ -58,6 +62,7 @@ Be friendly, concise, and helpful."""
             - columns: list (if successful)
             - rows: list (if successful)
             - summary: str (if successful)
+            - visualization: dict (if available)
             - error: str (if failed)
         """
         result = {
@@ -66,6 +71,7 @@ Be friendly, concise, and helpful."""
             "columns": None,
             "rows": None,
             "summary": None,
+            "visualization": None,
             "error": None
         }
         
@@ -111,13 +117,28 @@ Be friendly, concise, and helpful."""
             )
             
             result["summary"] = summary
-            result["success"] = True
             
         except Exception as e:
             # Even if summary fails, we still have the results
             result["summary"] = f"Results retrieved successfully, but couldn't generate summary: {str(e)}"
-            result["success"] = True  # Still consider it a success
         
+        # Step 3: Use Visualization Agent to generate charts
+        try:
+            viz_result = self.visualization_agent.process(
+                columns=columns,
+                rows=rows,
+                sql_query=sql_query
+            )
+            
+            if viz_result and viz_result.get("figure"):
+                result["visualization"] = viz_result
+                
+        except Exception as e:
+            # Visualization is optional, don't fail the whole request
+            print(f"[Chat Agent] Visualization failed: {e}")
+            result["visualization"] = None
+        
+        result["success"] = True
         return result
     
     def handle_conversation(
@@ -149,6 +170,9 @@ Be friendly, concise, and helpful."""
         
         if result.get("rows"):
             response_parts.append(f"\n\n📊 Found {len(result['rows'])} result(s).")
+        
+        if result.get("visualization"):
+            response_parts.append("\n\n📈 Visualization generated!")
         
         return "\n".join(response_parts) if response_parts else "Query completed."
 
